@@ -1,1 +1,76 @@
-Slip 14
+=================SLIP 20========================
+1) Implement Ridge Regression, Lasso regression model using boston_houses.csv and take only ‘RM’ and ‘Price’ of the houses. divide the data as training and testing data. Fit line using Ridge regression and to find price of a house if it contains 5 rooms. and compare results.
+
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import Ridge, Lasso
+from sklearn.metrics import mean_squared_error
+from sklearn.datasets import load_diabetes
+
+diabetes = load_diabetes()
+data = pd.DataFrame(diabetes.data, columns=diabetes.feature_names)
+data['Price'] = diabetes.target
+
+X = data[['bmi']]
+y = data['Price']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+ridge = Ridge(alpha=1.0)
+lasso = Lasso(alpha=0.1)
+
+ridge.fit(X_train, y_train)
+lasso.fit(X_train, y_train)
+
+ridge_pred = ridge.predict(X_test)
+lasso_pred = lasso.predict(X_test)
+
+ridge_mse = mean_squared_error(y_test, ridge_pred)
+lasso_mse = mean_squared_error(y_test, lasso_pred)
+
+print("Ridge Regression MSE:", ridge_mse)
+print("Lasso Regression MSE:", lasso_mse)
+
+ridge_price_for_bmi_005 = ridge.predict(pd.DataFrame([[0.05]], columns=['bmi']))[0]
+lasso_price_for_bmi_005 = lasso.predict(pd.DataFrame([[0.05]], columns=['bmi']))[0]
+
+print(f"Predicted target with BMI 0.05 (Ridge): ${ridge_price_for_bmi_005:.2f}")
+print(f"Predicted target with BMI 0.05 (Lasso): ${lasso_price_for_bmi_005:.2f}")
+
+=========================================================================================
+2) Write a python program to implement Decision Tree whether or not to play Tennis.
+
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn import tree
+import matplotlib.pyplot as plt
+
+data = {
+    'Outlook': ['Sunny', 'Sunny', 'Overcast', 'Rain', 'Rain', 'Rain', 'Overcast', 'Sunny', 'Sunny', 'Rain', 'Sunny', 'Overcast', 'Overcast', 'Rain'],
+    'Temperature': ['Hot', 'Hot', 'Hot', 'Mild', 'Cool', 'Cool', 'Cool', 'Mild', 'Cool', 'Mild', 'Mild', 'Mild', 'Hot', 'Mild'],
+    'Humidity': ['High', 'High', 'High', 'High', 'Normal', 'Normal', 'Normal', 'High', 'Normal', 'Normal', 'Normal', 'High', 'Normal', 'High'],
+    'Wind': ['Weak', 'Strong', 'Weak', 'Weak', 'Weak', 'Strong', 'Strong', 'Weak', 'Weak', 'Weak', 'Strong', 'Strong', 'Weak', 'Strong'],
+    'PlayTennis': ['No', 'No', 'Yes', 'Yes', 'Yes', 'No', 'Yes', 'No', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'No']
+}
+
+df = pd.DataFrame(data)
+
+le = LabelEncoder()
+df_encoded = df.apply(le.fit_transform)
+
+X = df_encoded[['Outlook', 'Temperature', 'Humidity', 'Wind']]
+y = df_encoded['PlayTennis']
+
+clf = DecisionTreeClassifier(criterion="entropy")
+clf.fit(X, y)
+
+plt.figure(figsize=(12,8))
+tree.plot_tree(clf, feature_names=['Outlook', 'Temperature', 'Humidity', 'Wind'], class_names=['No', 'Yes'], filled=True)
+plt.show()
+
+example = pd.DataFrame([[1, 2, 0, 1]], columns=['Outlook', 'Temperature', 'Humidity', 'Wind'])
+play_prediction = clf.predict(example)
+print("Should you play tennis?", "Yes" if play_prediction[0] else "No")
+
