@@ -159,3 +159,72 @@ plt.show()
 
 print("Polynomial Model Coefficients:", lin_reg.coef_)
 print("Polynomial Model Intercept:", lin_reg.intercept_)
+
+======================================Slip 14==========================
+1) Create a CNN model and train it on mnist handwritten digit dataset. Using model find
+out the digit written by a hand in a given image.
+Import mnist dataset from tensorflow.keras.datasets.
+
+import numpy as np
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, Input
+from tensorflow.keras.utils import to_categorical
+import matplotlib.pyplot as plt
+
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+x_train = x_train.reshape((x_train.shape[0], 28, 28, 1)).astype('float32') / 255
+x_test = x_test.reshape((x_test.shape[0], 28, 28, 1)).astype('float32') / 255
+y_train = to_categorical(y_train)
+y_test = to_categorical(y_test)
+
+model = Sequential()
+model.add(Input(shape=(28, 28, 1)))
+model.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Conv2D(64, kernel_size=(3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Flatten())
+model.add(Dense(128, activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(10, activation='softmax'))
+
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=5, batch_size=200, verbose=2)
+
+test_loss, test_accuracy = model.evaluate(x_test, y_test, verbose=0)
+print(f"Test accuracy: {test_accuracy:.4f}")
+
+def predict_digit(image):
+    image = image.reshape(1, 28, 28, 1).astype('float32') / 255
+    prediction = model.predict(image)
+    return np.argmax(prediction)
+
+index = 0
+plt.imshow(x_test[index].reshape(28, 28), cmap='gray')
+plt.title(f"Predicted Label: {predict_digit(x_test[index])}")
+plt.show()
+
+======================================================================================
+2) Write a python program to find all null values in a given dataset and remove them. Create your own dataset.
+
+import pandas as pd
+import numpy as np
+
+data = {
+    'Name': ['Alice', 'Bob', 'Charlie', 'David', 'Eve', None],
+    'Age': [24, None, 35, 45, 29, 31],
+    'City': ['New York', 'Los Angeles', None, 'Chicago', 'Houston', 'Phoenix'],
+    'Salary': [50000, 54000, 58000, None, 62000, 57000]
+}
+
+df = pd.DataFrame(data)
+print("Original Dataset:\n", df)
+
+null_values = df.isnull().sum()
+print("\nNull values in each column:\n", null_values)
+
+df_cleaned = df.dropna()
+print("\nDataset after removing rows with null values:\n", df_cleaned)
