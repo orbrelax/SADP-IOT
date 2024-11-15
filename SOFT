@@ -1,0 +1,92 @@
+===============================SLIIP 18=============================
+Q1: Q1.Write python program to create target string, starting from random string using Genetic Algorithm
+
+import random
+import string
+
+target_string = "Hello World"
+population_size = 100
+mutation_rate = 0.01
+
+def random_string(length):
+    return ''.join(random.choice(string.ascii_letters + ' ') for _ in range(length))
+
+def fitness(candidate, target):
+    return sum(1 for a, b in zip(candidate, target) if a == b)
+
+def select_parents(population, target):
+    population.sort(key=lambda x: fitness(x, target), reverse=True)
+    return population[0], population[1]
+
+def crossover(parent1, parent2):
+    crossover_point = random.randint(0, len(parent1))
+    child = parent1[:crossover_point] + parent2[crossover_point:]
+    return child
+
+def mutate(candidate):
+    if random.random() < mutation_rate:
+        index = random.randint(0, len(candidate) - 1)
+        new_char = random.choice(string.ascii_letters + ' ')
+        candidate = candidate[:index] + new_char + candidate[index + 1:]
+    return candidate
+
+def evolve_population(population, target):
+    new_population = []
+    while len(new_population) < population_size:
+        parent1, parent2 = select_parents(population, target)
+        child = crossover(parent1, parent2)
+        child = mutate(child)
+        new_population.append(child)
+    return new_population
+
+def genetic_algorithm(target):
+    population = [random_string(len(target)) for _ in range(population_size)]
+    generation = 0
+
+    while True:
+        generation += 1
+        population = evolve_population(population, target)
+        
+        for individual in population:
+            if individual == target:
+                print(f"Target string '{target}' found!")
+                print(f"Generation {generation}: {individual}")
+                return
+
+        if generation % 100 == 0:
+            best_match = max(population, key=lambda x: fitness(x, target))
+            print(f"Generation {generation}: Best match so far: {best_match} (Fitness: {fitness(best_match, target)})")
+
+genetic_algorithm(target_string)
+
+
+Q2: Write a program to implement De Morgan’s law
+
+def de_morgan_law():
+    # Define all possible truth values for A and B
+    truth_values = [(True, True), (True, False), (False, True), (False, False)]
+    
+    print("De Morgan's Laws Verification")
+    print("---------------------------------")
+    print(f"{'A':<6} {'B':<6} {'¬(A ∧ B)':<12} {'¬A ∨ ¬B':<12} {'¬(A ∨ B)':<12} {'¬A ∧ ¬B':<12}")
+    
+    for A, B in truth_values:
+        # First law: ¬(A ∧ B) == ¬A ∨ ¬B
+        not_and = not (A and B)
+        or_not = (not A) or (not B)
+        
+        # Second law: ¬(A ∨ B) == ¬A ∧ ¬B
+        not_or = not (A or B)
+        and_not = (not A) and (not B)
+        
+        # Print truth table
+        print(f"{A:<6} {B:<6} {not_and:<12} {or_not:<12} {not_or:<12} {and_not:<12}")
+        
+        # Verify laws
+        assert not_and == or_not, "De Morgan's First Law failed!"
+        assert not_or == and_not, "De Morgan's Second Law failed!"
+    
+    print("\nDe Morgan's laws verified successfully!")
+
+# Call the function
+de_morgan_law()
